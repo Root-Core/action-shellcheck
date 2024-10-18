@@ -1,6 +1,6 @@
 name: 'ignore_names'
 
-on: 
+on:
   push:
     branches:
       - "master"
@@ -31,7 +31,7 @@ jobs:
         ignore_names: ignore_single_file.sh
 
     - name: Verify check
-      run: | 
+      run: |
         expect="testfiles/test.bash"
         notexpect="testfiles/ignore_single_file.sh"
 
@@ -39,6 +39,6 @@ jobs:
           echo "::error:: Expected file $expect not found in ${{ steps.check.outputs.files }}"
           exit 1
         elif [[ "${{ steps.check.outputs.files }}" =~ $notexpect ]];then
-          echo "::error:: Expected file $notexpect found in ${{ steps.check.outputs.files }}"
+          echo "::error:: Unexpected file $notexpect found in ${{ steps.check.outputs.files }}"
           exit 1
-        fi 
+        fi

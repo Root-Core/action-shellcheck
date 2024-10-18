@@ -1,0 +1,1 @@
+ignore/symlink.sh

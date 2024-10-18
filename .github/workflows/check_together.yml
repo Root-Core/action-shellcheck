@@ -1,6 +1,6 @@
 name: 'check_together'
 
-on: 
+on:
   push:
     branches:
       - "master"
@@ -31,7 +31,7 @@ jobs:
         check_together: true
 
     - name: Verify check
-      run: | 
+      run: |
         expect="testfiles/test.bash"
         notexpect="testfiles/ignore/ignore.bash"
 
@@ -41,4 +41,4 @@ jobs:
         elif [[ "${{ steps.check.outputs.files }}" =~ $notexpect ]];then
           echo "::error:: Expected file $notexpect found in ${{ steps.check.outputs.files }}"
           exit 1
-        fi 
+        fi

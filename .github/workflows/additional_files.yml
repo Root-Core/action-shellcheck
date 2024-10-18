@@ -1,6 +1,6 @@
 name: 'additional_files'
 
-on: 
+on:
   push:
     branches:
       - "master"
@@ -32,7 +32,7 @@ jobs:
         scandir: testfiles
 
     - name: Verify check
-      run: | 
+      run: |
         expect="testfiles/scandir/run"
 
         if [[ ! "${{ steps.check.outputs.files }}" =~ testfiles/scandir/run ]];then
@@ -44,4 +44,4 @@ jobs:
         elif [[ ! "${{ steps.check.outputs.files }}" =~ testfiles/scandir/discovery ]];then
           echo "::error:: Expected file testfiles/scandir/discovery not found in ${{ steps.check.outputs.files }}"
           exit 1
-        fi 
+        fi
