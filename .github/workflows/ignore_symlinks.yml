@@ -25,7 +25,7 @@ jobs:
 
     - name: Run ShellCheck (ignore symbolic links)
       uses: ./
-      id: check
+      id: check_symlinks_ignored
       with:
         ignore_paths: ignore
         ignore_symlinks: true
@@ -35,21 +35,21 @@ jobs:
       run: |
         # Verify that symlink is not included
         notexpect="testfiles/symlink.sh"
-        if [[ "${{ steps.check.outputs.files }}" =~ $notexpect ]];then
-          echo "::error:: Unexpected file $notexpect found in ${{ steps.check.outputs.files }}"
+        if [[ "${{ steps.check_symlinks_ignored.outputs.files }}" =~ $notexpect ]];then
+          echo "::error:: Unexpected file $notexpect found in ${{ steps.check_symlinks_ignored.outputs.files }}"
           exit 1
         fi
 
         # Verify that ignored path is not included
         notexpect="testfiles/ignore/symlink.sh"
-        if [[ "${{ steps.check.outputs.files }}" =~ $notexpect ]];then
-          echo "::error:: Unexpected file $notexpect found in ${{ steps.check.outputs.files }}"
+        if [[ "${{ steps.check_symlinks_ignored.outputs.files }}" =~ $notexpect ]];then
+          echo "::error:: Unexpected file $notexpect found in ${{ steps.check_symlinks_ignored.outputs.files }}"
           exit 1
         fi
 
     - name: Run ShellCheck (include symbolic links)
       uses: ./
-      id: check
+      id: check_symlinks_included
       with:
         ignore_paths: ignore
         ignore_symlinks: false
@@ -59,14 +59,14 @@ jobs:
       run: |
         # Verify that symlink is included
         expect="testfiles/symlink.sh"
-        if [[ ! "${{ steps.check.outputs.files }}" =~ $expect ]];then
-          echo "::error:: Expected file $expect not found in ${{ steps.check.outputs.files }}"
+        if [[ ! "${{ steps.check_symlinks_included.outputs.files }}" =~ $expect ]];then
+          echo "::error:: Expected file $expect not found in ${{ steps.check_symlinks_included.outputs.files }}"
           exit 1
         fi
 
         # Verify that ignored path is not included
         notexpect="testfiles/ignore/symlink.sh"
-        if [[ "${{ steps.check.outputs.files }}" =~ $notexpect ]];then
-          echo "::error:: Unexpected file $notexpect found in ${{ steps.check.outputs.files }}"
+        if [[ "${{ steps.check_symlinks_included.outputs.files }}" =~ $notexpect ]];then
+          echo "::error:: Unexpected file $notexpect found in ${{ steps.check_symlinks_included.outputs.files }}"
           exit 1
         fi
