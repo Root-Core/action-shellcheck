@@ -1,0 +1,72 @@
+name: 'ignore_symlinks'
+
+on:
+  push:
+    branches:
+      - "master"
+  pull_request:
+    branches:
+      - "master"
+
+permissions: {}
+
+jobs:
+  ignore_symlinks:
+    name: ignore_symlinks
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os:
+          - ubuntu-latest
+          - macos-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Run ShellCheck (ignore symbolic links)
+      uses: ./
+      id: check
+      with:
+        ignore_paths: ignore
+        ignore_symlinks: true
+        additional_files: symlink.sh
+
+    - name: Verify check (ignore symbolic links)
+      run: |
+        # Verify that symlink is not included
+        notexpect="testfiles/symlink.sh"
+        if [[ "${{ steps.check.outputs.files }}" =~ $notexpect ]];then
+          echo "::error:: Unexpected file $notexpect found in ${{ steps.check.outputs.files }}"
+          exit 1
+        fi
+
+        # Verify that ignored path is not included
+        notexpect="testfiles/ignore/symlink.sh"
+        if [[ "${{ steps.check.outputs.files }}" =~ $notexpect ]];then
+          echo "::error:: Unexpected file $notexpect found in ${{ steps.check.outputs.files }}"
+          exit 1
+        fi
+
+    - name: Run ShellCheck (include symbolic links)
+      uses: ./
+      id: check
+      with:
+        ignore_paths: ignore
+        ignore_symlinks: false
+        additional_files: symlink.sh
+
+    - name: Verify check (include symbolic links)
+      run: |
+        # Verify that symlink is included
+        expect="testfiles/symlink.sh"
+        if [[ ! "${{ steps.check.outputs.files }}" =~ $expect ]];then
+          echo "::error:: Expected file $expect not found in ${{ steps.check.outputs.files }}"
+          exit 1
+        fi
+
+        # Verify that ignored path is not included
+        notexpect="testfiles/ignore/symlink.sh"
+        if [[ "${{ steps.check.outputs.files }}" =~ $notexpect ]];then
+          echo "::error:: Unexpected file $notexpect found in ${{ steps.check.outputs.files }}"
+          exit 1
+        fi

@@ -19,6 +19,10 @@ inputs:
     description: "Names to ignore when running ShellCheck"
     required: false
     default: ""
+  ignore_symlinks:
+    description: "Ignore files that are symbolic links."
+    required: false
+    default: "true"
   severity:
     description: "Minimum severity of errors to consider. Options: [error, warning, info, style]"
     required: false
@@ -96,12 +100,16 @@ runs:
       shell: bash
       id: options
       env:
+        INPUT_IGNORE_SYMLINKS: ${{ inputs.ignore_symlinks }}
         INPUT_SEVERITY: ${{ inputs.severity }}
         INPUT_FORMAT: ${{ inputs.format }}
       run: |
         declare -a options
         if [[ -n "${INPUT_SEVERITY}" ]]; then
           options+=("-S ${INPUT_SEVERITY}")
+        fi
+        if [[ "${INPUT_IGNORE_SYMLINKS}" != "true" ]]; then
+          echo "file_options=-L" >> $GITHUB_OUTPUT
         fi
         options+=("--format=${INPUT_FORMAT}")
         echo "options=${options[@]}" >> $GITHUB_OUTPUT
@@ -158,7 +166,7 @@ runs:
       id: check
       env:
         INPUT_SCANDIR: ${{ inputs.scandir }}
-        INPUT_CHECK_TOGETHER: ${{ inputs.check_together }}
+        INPUT_FILE_OPTIONS: ${{ steps.options.outputs.file_options }}
         INPUT_EXCLUDE_ARGS: ${{ steps.exclude.outputs.excludes }}
         INPUT_ADDITIONAL_FILE_ARGS: ${{ steps.additional.outputs.files }}
         INPUT_SHELLCHECK_OPTIONS: ${{ steps.options.outputs.options }}
@@ -171,7 +179,9 @@ runs:
 
         while IFS= read -r -d '' file; do
           filepaths+=("$file")
-        done < <(find "${INPUT_SCANDIR}" \
+        done < <(find \
+            ${INPUT_FILE_OPTIONS} \
+            "${INPUT_SCANDIR}" \
             ${INPUT_EXCLUDE_ARGS} \
             -type f \
             '(' \
