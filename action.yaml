@@ -208,7 +208,9 @@ runs:
         while IFS= read -r -d '' file; do
           head -n1 "$file" | grep -Eqs "$shebangregex" || continue
           filepaths+=("$file")
-        done < <(find "${INPUT_SCANDIR}" \
+        done < <(find \
+            ${INPUT_FILE_OPTIONS} \
+            "${INPUT_SCANDIR}" \
             ${INPUT_EXCLUDE_ARGS} \
             -type f ! -name '*.*' -perm /111 \
             -print0)
